@@ -81,6 +81,7 @@ This requires
 - an evolution of the HPR to manage the new rewarding mechanism, it impacts Nova developpement team.
 - an evolution of the legacy console to manage the device owner DC balance in regard of the new rewarding mechanism, it impacts Nova development team.
 - potential evolution of the open-LNS to Helium integration layers to manage the device owner DC balance, like for legacy console, it impacts third party developments.
+- Cost for device owner is becomming higher if they were using downlink intensively. But the get a better JOIN ability.
 
 # Success Metrics
 
