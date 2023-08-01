@@ -12,11 +12,9 @@ The Helium Packet Router (HPR) deployed since a couple of month changed the prev
 The purpose of the HIP is to get benefit of this evolution to think the data reward to hostpot owner a bit differently.
 
 As the downlink communications, required for JOIN ACCEPT, DOWNLINK and ACK, are a critical and limited resource in a scalable network, we propose 
-to reward the hotspot owner for processing it. The HIP proposes a cost of 2DC per 24 Bytes blocs of downlink communications.
+to reward the hotspot owners for processing it. The HIP proposes a cost of 2DC per 24 Bytes blocs of downlink communications.
 
-As we need to secure the JOIN procedure and as this process is rare, we propose that JOIN REQUEST uplink traffic will be free of charge. This will allow to 
-take all the copies in consideration to improve the ability of devices to JOIN the network. (The JOIN ACCEPT response will be charged as indicated previously, 
-to the best fitting hotspot).
+As we need to secure the JOIN procedure and as this process is rare, we propose that JOIN REQUEST uplink traffic will be free of charge. This will allow to take all the copies in consideration to improve the ability of devices to JOIN the network. (The JOIN ACCEPT response will be charged as indicated previously).
 
 # Motivation
 
