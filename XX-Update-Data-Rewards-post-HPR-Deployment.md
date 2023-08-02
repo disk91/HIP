@@ -8,13 +8,11 @@
 
 # Summary 
 
-The Helium Packet Router (HPR) deployed since a couple of month changed the previous constraints driven some of the rules of the data rewards.
-The purpose of the HIP is to get benefit of this evolution to think the data reward to hostpot owner a bit differently.
+The Helium Packet Router (HPR), which has been operational for a few months, has initiated changes that supersede the previous constraint-based rules governing data rewards. The aim of this Improvement Proposal (HIP) is to take advantage of these changes and reconsider the way we distribute data rewards to hotspot owners.
 
-As the downlink communications, required for JOIN ACCEPT, DOWNLINK and ACK, are a critical and limited resource in a scalable network, we propose 
-to reward the hotspot owners for processing it. The HIP proposes a cost of 2DC per 24 Bytes blocs of downlink communications.
+Recognizing that downlink communications - essential for JOIN ACCEPT, DOWNLINK, and ACK - are a crucial and limited resource in a scalable network, our suggestion is to incentivize hotspot owners for managing these tasks. The HIP is suggesting a fee of 2DC per 24-byte block of downlink communications.
 
-As we need to secure the JOIN procedure and as this process is rare, we propose that JOIN REQUEST uplink traffic will be free of charge. This will allow to take all the copies in consideration to improve the ability of devices to JOIN the network. (The JOIN ACCEPT response will be charged as indicated previously).
+To ensure the security of the JOIN process, which is a relatively infrequent procedure, we propose to make the JOIN REQUEST uplink traffic free of charge. This enables all copies to be accounted for, thus enhancing the capacity of devices to join the network. However, the corresponding JOIN ACCEPT response will be charged as previously detailed.
 
 # Motivation
 
@@ -22,8 +20,7 @@ As we need to secure the JOIN procedure and as this process is rare, we propose 
 
 Ack is a Donwlink with no data.
 
-With the arrival of the HPR, it is now possible to reward the downlink communications. Previously, the use of state channel and negociation with the 
-hotspots for creating a transaction was too long to preserve the downlink timing. HPR is working differently and can, without impacting the LoRaWAN timing, reward the donwlink work.
+With the arrival of the HPR, it is now possible to reward the downlink communications. Previously, the use of state channel and negociation with the hotspots for creating a transaction was too long to preserve the downlink timing. HPR is working differently and can, without impacting the LoRaWAN timing, reward the donwlink work.
 
 Downlink is a critical and limited resource for a LoRaWAN network for many different reasons:
 - Transmission limits applicable to device ( 1% to 10% duty cycle in EU, 400ms max time frequency usage within 10s for FCC ) are also applicable to hotspot when communicating to devices
@@ -38,20 +35,38 @@ The impact for the hotspot owners is a new type of reward for donwlink traffic c
 
 ## About JOIN REQUEST
 
-The ability for a device to join the network ( mandatory process for OTAA communications ) with a JOIN REQUEST is related to ability to find the best hotspot for sending the downlink response for the JOIN ACCEPT. For this, the LNS will select the hotspot with the signal with the best matching. The best matching rules depends on the LNS algorithm, in many case it takes the best signal.
-
-Currently, JOIN REQUEST are concidered as standard uplink, the HPR, is selecting the JOIN REQUEST with the same rules as uplink : first comes are selected, up to the limit of max_copies frames. 
-
+On LoRaWAN networks, most end-devices utilize a process called Over-The-Air Activation (OTAA) to initialize their connection with the network through a "JOIN". The join procedure consists of two messages exchanged with the LoRaWAN Network Server (LNS), namely a join-request (sent from the device) and a join-accept (sent from the LNS to the device via a Hotspot). On Helium, all of these messages pass through OpenLNS (referred to as Helium Packet Router) in order to appropriately direct and account for network traffic.
 JOIN REQUEST is really rare, it comes at the device power-up and may be executed on regular basis to renew the communication keys.
 It should be executed at least before 65536 uplinks for security reasons. It does not exist with ABP devices.
 
-The current way to secure the ability for a device to connect to the newtork is to increase the max_copies parameter, it means that all the future uplinks will cost up to max_copies DCs per blocs of 24 bytes. For a good ability to connect, you should have a max_copies of 5 or more having for consequence to multiply all your communications cost by 5. Practically speaking, most of the business solution won't have a such setup and will be impacted by the difficulty to join the network. As a consequence, Helium is not percieved at the right level of quality, due to this recurrent connectivity issue.
+This HIP outlines a solution to issues that arise under this model:
+- Due to the two-way handshake that must be performed during a JOIN, it is imperative that the LNS knows of the most well-positioned Hotspot in terms of signal strength (RSSI) to deliver the JOIN ACCEPT. In order to do this, Helium Packet Router will need to forward all receipts of the packet reported by Hotspots to ensure the highest opportunity for success.
+- Currently, JOIN REQUEST are concidered as standard uplink, the HPR, is selecting the JOIN REQUEST with the same rules as uplink : first comes are selected, up to the limit of max_copies frames.
 
-The proposal is to make the JOIN REQUEST packet free of charge, as a consequence, hotspot owner won't be rewarded for this type of packet. The HPR will transfer all the packets to the LNS and that one will be able to select the best of them. This one will get rewarded through the JOIN ACCEPT downlink packet as previously proposed.
+By addressing this issues, the Helium Network:
+- Simplify economics of operating devices on the Helium network by eliminating the unknown cost of a device join.
+- Replace the JOIN REQUEST (uplink) cost by a JOIN ACCEPT (downlink) cost as previously mentionned.
 
 The impact of the proposal for the hotpost owner is positive as currently the JOIN REQUEST is rewarded 1DC but with that proposal the JOIN REQUEST + JOIN ACCEPT will be rewarded 2 DCs. The better quality of the network in the JOIN process will help to make the growth of the traffic higher.
 
+## Currentl Volumes to be considered
+
+We don't have official metrics for all the element discussed above, by the way, we can consider the following as a starting point:
+- The Helium daily uplink volume, cleared from the non standard activities is about 15.000.000 DCs (from Dune) 
+- The Roaming daily uplink volume is about 6.000.000 DCs (from Dune)
+- The number of hotspot rewarded per day for data transfer is about 75000 (HeliumGeek)
+Assumptions:
+- Average uplink packet cost is 1.5 DCs
+- The JOIN REQUEST volume is around 1.5% of UPLINK assuming 250.000 a day, assuming 500.000 DCs less burn a day
+- The DOWNLINK + JOIN ACCEPT volume is around 15% of UPLINK volume, with x2 DCs per DOWNLINK, assuming 5.500.000 DCs burn a day 
+
 # Rationale and Alternatives
+
+## JOIN Process evolution
+
+Before HIP70, Hotspots passed data to an LNS through a bid mechanism. Hotspots would report to the LNS’s individual router that it had data available and the LNS would have a choice whether to purchase it or not. While this allowed for clear purchase intent, this added additional latency and bandwidth concerns to all packet transfer as well as requiring specialized software (router) to be integrated with the LNS. With the changes presented by HIP70, the data passes directly between Hotspots and LNSs via the unified Helium Packet Router. 
+
+## Downlink rewarding
 
 As hotpost selection for downlink communication is usually based on signal streight, we see here an opportunity of gaming by facking the signal information delivered by the hotspot until the secured concentrator are deployed everywhere (really long term perspective). For this reason, the downlink reward can't be linked to the action of a specific hotspot.
 We see two ways for solving this problem:
@@ -66,10 +81,26 @@ This approach, is close to the reality of the work but it creates a certain comp
 
 ### Manage a pool of downlink DCs to be distributed on regular basis
 
-This second approach is to create a pool of reward composed by the downlink DCs. Any downlink have a cost of 2DCs for the OUI but these DCs are not directly given to the hostpots involved in these communications. They are saved in a dedicated DC pool. On every week, the DC pool is distributed equaly, to all the hotspots having realyed data traffic during this period of time.
+This second approach is to create a pool of reward composed by the downlink DCs. Any downlink have a cost of 2DCs for the OUI but these DCs are not directly given to the hostpots involved in these communications. They are saved in a dedicated DC pool. On every day, the DC pool is distributed equaly, to all the hotspots having realyed data traffic during this period of time.
 
-As a DC can't be split, the number of DCs must be greated than the number of hotspot rewarded to have this distribution occuring. Otherwize, the DCs are kept in pool and the distribution will be made in a later occurence. For the same reason, the DCs that can't be distributed, will be distributed dring the next run.
+As a DC can't be split, the number of DCs must be greated than the number of hotspot rewarded to have this distribution occuring. Otherwize, the DCs are kept in pool and the distribution will be made in a later occurence. For the same reason, the DCs that can't be distributed, will be distributed dring the next run. 
 
+With about 70K hostpots transfering data a day and a volume of DCs from downlink pool about 5M, most of the DCs pool can be distributed on every days.
+
+# Stakeholders
+
+### Hotspot owners
+
+Hotspots are rewarded for the data they transfer at a fixed value of $0.00001 (remunerated in the network token). By excluding device JOIN_REQUEST by adding JOIN_ACCEPT rewarding and DOWNLINK & ACK rewarding the global volume of reward may increased after the HIP as estimated in the volume to be concidered. Given that Hotspot Hosts represent a high percentage of voting power, their voting participation will strongly signal their position as a stakeholder.
+
+### Roaming partner
+
+To be investigated
+
+### LNS Owners
+
+LNS operators are rewarded for processing traffic. They also need to address user connectivity issues. The selection of Hotspots in downlink communication is a critical factor for success, so providing LNS operators with the ability to choose the best option can reduce support-related queries. 
+As representatives of device owners, LNS operators can offer a better service to device fleet owners by simplifying the join procedure and enabling them to maintain a low 'max_copy' parameter, thus keeping network usage costs in-line with delivered service. Service providers can benefit from this by achieving a smoother connection process, even with 'max_copy' set to 1 for subsequent messages. This helps them avoid high costs when a poorly developed device initiates a join loop.
 
 # Unresolved Questions
 
